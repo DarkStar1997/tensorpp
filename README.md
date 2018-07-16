@@ -19,6 +19,7 @@ This is a community driven project and developed collaboratively under **Crystal
 #### Collaborators
 
 1. Ayan Das
+2. Rohan Mark Gomes
 
 #### Discussion
 Join our `slack` [group](https://join.slack.com/t/crystal-code/shared_invite/enQtMzgyOTk3NTc1NDYxLTYwOWVhMGRjNGVmODJhMGQ0OTM5ZGJhOWZhMzhmZWEyMTk0ZGMwZGZjZjM0MzZlNDVkZDkwZjBjYjFjNTRiMTI) for discussion regarding the project. For any other query, mail me at dasayan05@hotmail.com with a subject of **tensorpp**.
