@@ -6,6 +6,9 @@
 #else
 	#include <algorithm>
 #endif
+
+//Overloaded << operator for printing a vector
+
 template<typename T>
 std::ostream& operator<<(std::ostream &out, const std::vector<T> &arr)
 {
@@ -13,6 +16,9 @@ std::ostream& operator<<(std::ostream &out, const std::vector<T> &arr)
 		out<<i<<" ";
 	return out;
 }
+
+//ND Array
+
 template<typename T>
 struct Arr
 {
@@ -47,6 +53,12 @@ struct Arr
 		std::cout<<"Strides= "<<strides<<"\n";
 		std::cout<<"Size="<<s1<<"\n";
 	}
+
+	/*
+	  To change the dimensions of the ND Array. When the dimensions are expanded, the extra elements are replaced
+	  by zeros. The strides are also changed accordingly.
+	*/
+
 	void reshape(std::vector<size_t> &&x)
 	{
 		size_t s=x.size();
@@ -73,7 +85,26 @@ struct Arr
 		std::cout<<"Dims= "<<dims<<"\n";
 		std::cout<<"Strides= "<<strides<<"\n";
 	}
-	inline T& operator[](const std::vector<size_t> &&indices)		//a bit slow...Please avoid loops with this
+
+	/*
+	Accessing the elements of the ND array. For a 3D array arr, the element at (i, j, k)
+	can be accessed as arr[{i, j, k}]. For a 4D array, the syntax is arr[{i, j, k, l}].
+	Despite being convenient, this syntax should be avoided inside a loop because it is
+	slow as compared to accessing the elements of an array of fixed number of dimensions.
+	The following code runs slow :
+
+		for(int i = 0; i < n; i++)
+			for(int j = 0; j < m; j++)
+				arr[{i, j}] = func();
+
+	The following code should be used which runs as fast as a normal 2D array:
+
+		for(int i = 0; i < n; i++)
+			for(int j = 0; j < m; j++)
+				arr[arr.strides[0]*i + arr.strides[1]*j] = func();
+	*/
+
+	inline T& operator[](const std::vector<size_t> &&indices)
 	{
 		unsigned int sum=0;
 		auto st=indices.size();
@@ -83,12 +114,26 @@ struct Arr
 		//cout<<"With "<<indices<<"\n";
 		return mat[sum];
 	}
+
+	/*
+	This function applies a common operation func to all the elements starting from
+	index start. The number of elements to be affected by the change is the length
+	parameter along the dimension given by the dimension parameter.
+	*/
+
 	template<class Func>
 	void iterate(int start, int length, int dimension, Func func)
 	{
 		for(int i=start, j=1; j<=length && i<dims[dimension]; i+=strides[dimension], j++)
 			func(mat[i]);
 	}
+
+	/*
+	Nearly the same as iterate function with the difference that here the stride 
+	parameter is taken as input instead of the dimension parameter. Thus we can
+	set the custom stride of the operation.
+	*/
+
 	template<class Func>
 	void iterate_stride(int start, int length, int stride, Func func)
 	{
@@ -96,6 +141,7 @@ struct Arr
 		for(int i=start, j=1; j<=length && i<n; i+=stride, j++)
 			func(mat[i]);
 	}
+
 	// template<class Comp>
 	// void sort(vector<size_t> &&axes, Comp cmp)
 	// {
@@ -113,6 +159,7 @@ struct Arr
 	// 		tmp.clear(); tmp.shrink_to_fit();
 	// 	}
 	// }
+
 	template<class Func>
 	void sort(std::vector<std::vector<size_t>> sizes, Func func)
 	{
@@ -135,12 +182,19 @@ struct Arr
 				mat[i1]=arr[index++];
 		}
 	}
+
+	/*
+	As the name suggests, this function swaps the elements of two dimensions. Basically
+	for a 2D array, the swapping operation is nothing but the transpose of the array. It
+	is to be noted that this operation is in place and only the strides are modified.
+	*/
+
 	void swapaxes(int x, int y)
 	{
 		std::swap(strides[x], strides[y]);
 		std::swap(dims[x], dims[y]);
 	}
-	Arr<T> span(std::vector<std::pair<size_t, size_t>> sizes)               //crying bitterly for template metaprogramming....Please HELP!!!!!!
+	Arr<T> span(std::vector<std::pair<size_t, size_t>> sizes)
 	{
 		auto tmp=sizes.size();
 		if(tmp==1)
